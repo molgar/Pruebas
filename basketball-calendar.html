@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Girls Basketball Game Calendar</title>
+    <title>Kids Games Calendar</title>
     <style>
         * {
             margin: 0;
@@ -28,7 +28,7 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -37,43 +37,58 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .header p {
             font-size: 1.1em;
-            opacity: 0.95;
+            opacity: 0.9;
         }
 
-        .content {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            padding: 30px;
-        }
-
-        .calendar-section {
-            background: #f8f9fa;
-            border-radius: 15px;
+        .kids-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
             padding: 20px;
+            background: #f8f9fa;
+            flex-wrap: wrap;
         }
 
-        .calendar-header {
+        .kid-badge {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kid-badge.carmen {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .kid-badge.marta {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .kid-badge.lucia {
+            background: #ffd93d;
+            color: #2d3436;
+        }
+
+        .controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .calendar-header h2 {
-            color: #333;
-            font-size: 1.8em;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
         }
 
         .month-nav {
             display: flex;
-            gap: 15px;
             align-items: center;
+            gap: 20px;
         }
 
         .month-nav button {
@@ -84,18 +99,58 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 1em;
-            transition: all 0.3s;
+            transition: background 0.3s;
         }
 
         .month-nav button:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
+            background: #764ba2;
+        }
+
+        .month-nav h2 {
+            color: #2d3436;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .add-game-btn {
+            background: #51cf66;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .add-game-btn:hover {
+            background: #37b24d;
+        }
+
+        .export-pdf-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .export-pdf-btn:hover {
+            background: #ee5a52;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
         }
 
         .calendar {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
+            padding: 30px;
         }
 
         .weekdays {
@@ -119,200 +174,364 @@
         }
 
         .day {
-            aspect-ratio: 1;
-            border: 2px solid #e0e0e0;
+            min-height: 100px;
+            border: 2px solid #e9ecef;
             border-radius: 10px;
             padding: 8px;
             cursor: pointer;
             transition: all 0.3s;
-            position: relative;
             background: white;
         }
 
         .day:hover {
             border-color: #667eea;
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
 
         .day.other-month {
             opacity: 0.3;
         }
 
-        .day.today {
-            background: #fff3cd;
-            border-color: #ffc107;
-            font-weight: bold;
-        }
-
-        .day.has-game {
-            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-            border-color: #4facfe;
-        }
-
         .day-number {
-            font-size: 1.1em;
-            color: #333;
+            font-weight: bold;
+            color: #2d3436;
             margin-bottom: 5px;
         }
 
-        .game-indicator {
-            font-size: 0.7em;
-            background: #f5576c;
+        .day.today {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .game {
+            font-size: 0.75em;
+            padding: 4px 6px;
+            border-radius: 4px;
+            margin-bottom: 3px;
             color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-top: 3px;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
 
-        .sidebar {
+        .game:hover {
+            transform: scale(1.05);
+        }
+
+        .game.carmen {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .game.marta {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .game.lucia {
+            background: #ffd93d;
+            color: #2d3436;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
         }
 
-        .add-game-section, .games-list-section {
-            background: #f8f9fa;
+        .modal-content {
+            background: white;
+            padding: 30px;
             border-radius: 15px;
-            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
-        .add-game-section h3, .games-list-section h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.4em;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #2d3436;
+            font-size: 1.5em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #636e72;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3436;
+            font-weight: bold;
         }
 
-        .form-group input, .form-group select {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 10px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #e9ecef;
             border-radius: 8px;
             font-size: 1em;
-            transition: border-color 0.3s;
+            font-family: inherit;
         }
 
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
         }
 
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .form-buttons button {
+            padding: 10px 20px;
             border: none;
             border-radius: 8px;
-            font-size: 1.1em;
             cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .game-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border-left: 4px solid #667eea;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .game-item.home {
-            border-left-color: #4caf50;
-        }
-
-        .game-item.away {
-            border-left-color: #f5576c;
-        }
-
-        .game-date {
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-
-        .game-details {
-            color: #666;
-            font-size: 0.9em;
-            margin: 3px 0;
-        }
-
-        .game-type {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        .game-type.home {
-            background: #4caf50;
-            color: white;
-        }
-
-        .game-type.away {
-            background: #f5576c;
-            color: white;
-        }
-
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-top: 8px;
+            font-size: 1em;
             transition: background 0.3s;
         }
 
-        .delete-btn:hover {
-            background: #c82333;
+        .btn-save {
+            background: #51cf66;
+            color: white;
         }
 
-        .no-games {
-            text-align: center;
-            color: #999;
-            padding: 20px;
-            font-style: italic;
+        .btn-save:hover {
+            background: #37b24d;
         }
 
+        .btn-cancel {
+            background: #e9ecef;
+            color: #2d3436;
+        }
+
+        .btn-cancel:hover {
+            background: #dee2e6;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #ee5a52;
+        }
+
+        .game-details {
+            margin-bottom: 15px;
+        }
+
+        .game-details p {
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        .game-details strong {
+            color: #667eea;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .content {
-                grid-template-columns: 1fr;
+            body {
+                padding: 10px;
             }
 
             .header h1 {
                 font-size: 1.8em;
             }
 
+            .header p {
+                font-size: 0.95em;
+            }
+
+            .kids-info {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .kid-badge {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .month-nav {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .month-nav button {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .month-nav h2 {
+                font-size: 1.3em;
+            }
+
+            .add-game-btn {
+                width: 100%;
+                padding: 14px;
+            }
+
+            .export-pdf-btn {
+                width: 100%;
+                padding: 14px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .calendar {
+                padding: 15px;
+            }
+
+            .weekdays {
+                gap: 5px;
+            }
+
+            .weekday {
+                font-size: 0.85em;
+                padding: 5px;
+            }
+
+            .days {
+                gap: 5px;
+            }
+
+            .day {
+                min-height: 80px;
+                padding: 5px;
+            }
+
             .day-number {
+                font-size: 0.85em;
+            }
+
+            .game {
+                font-size: 0.65em;
+                padding: 3px 4px;
+                margin-bottom: 2px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .modal-header h3 {
+                font-size: 1.2em;
+            }
+
+            .form-group label {
+                font-size: 0.95em;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .form-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .form-buttons button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .header p {
                 font-size: 0.9em;
             }
 
-            .game-indicator {
+            .month-nav h2 {
+                font-size: 1.1em;
+                min-width: auto;
+            }
+
+            .day {
+                min-height: 70px;
+                padding: 4px;
+            }
+
+            .day-number {
+                font-size: 0.8em;
+                margin-bottom: 3px;
+            }
+
+            .game {
                 font-size: 0.6em;
+                padding: 2px 3px;
+            }
+
+            .weekday {
+                font-size: 0.75em;
+                padding: 4px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                max-width: 95%;
+            }
+
+            .calendar {
+                padding: 25px;
+            }
+
+            .day {
+                min-height: 90px;
             }
         }
     </style>
@@ -320,234 +539,445 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏀 Girls Basketball Game Calendar</h1>
-            <p>Track and manage your basketball game schedule</p>
+            <h1>🏀 Basketball Games Calendar</h1>
+            <p>Track all your daughters' games in one place</p>
         </div>
 
-        <div class="content">
-            <div class="calendar-section">
-                <div class="calendar-header">
-                    <h2 id="currentMonth"></h2>
-                    <div class="month-nav">
-                        <button onclick="changeMonth(-1)">← Previous</button>
-                        <button onclick="goToToday()">Today</button>
-                        <button onclick="changeMonth(1)">Next →</button>
-                    </div>
-                </div>
-                <div class="calendar">
-                    <div class="weekdays">
-                        <div class="weekday">Sun</div>
-                        <div class="weekday">Mon</div>
-                        <div class="weekday">Tue</div>
-                        <div class="weekday">Wed</div>
-                        <div class="weekday">Thu</div>
-                        <div class="weekday">Fri</div>
-                        <div class="weekday">Sat</div>
-                    </div>
-                    <div class="days" id="calendarDays"></div>
-                </div>
+        <div class="kids-info">
+            <div class="kid-badge carmen">
+                <span>🏀</span>
+                <span>Carmen - Mini</span>
             </div>
+            <div class="kid-badge marta">
+                <span>🏀</span>
+                <span>Marta - Infantil</span>
+            </div>
+            <div class="kid-badge lucia">
+                <span>🏀</span>
+                <span>Lucía - Cadete</span>
+            </div>
+        </div>
 
-            <div class="sidebar">
-                <div class="add-game-section">
-                    <h3>Add New Game</h3>
-                    <form id="gameForm" onsubmit="addGame(event)">
-                        <div class="form-group">
-                            <label for="gameDate">Date:</label>
-                            <input type="date" id="gameDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="gameTime">Time:</label>
-                            <input type="time" id="gameTime" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="opponent">Opponent:</label>
-                            <input type="text" id="opponent" placeholder="Team name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="location">Location:</label>
-                            <input type="text" id="location" placeholder="Venue" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="gameType">Game Type:</label>
-                            <select id="gameType" required>
-                                <option value="home">Home</option>
-                                <option value="away">Away</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn">Add Game</button>
-                    </form>
-                </div>
+        <div class="controls">
+            <div class="month-nav">
+                <button id="prevMonth">← Previous</button>
+                <h2 id="currentMonth">Month Year</h2>
+                <button id="nextMonth">Next →</button>
+            </div>
+            <div class="button-group">
+                <button class="add-game-btn" id="addGameBtn">+ Add Game</button>
+                <button class="export-pdf-btn" id="exportPdfBtn">📄 Export to PDF</button>
+            </div>
+        </div>
 
-                <div class="games-list-section">
-                    <h3>Upcoming Games</h3>
-                    <div id="gamesList"></div>
+        <div class="calendar">
+            <div class="weekdays">
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
+                <div class="weekday">Sun</div>
+            </div>
+            <div class="days" id="calendarDays"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="addGameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Game</h3>
+                <button class="close-btn" id="closeAddModal">&times;</button>
+            </div>
+            <form id="gameForm">
+                <div class="form-group">
+                    <label>Player</label>
+                    <select id="player" required>
+                        <option value="">Select a player</option>
+                        <option value="carmen">Carmen (Mini)</option>
+                        <option value="marta">Marta (Infantil)</option>
+                        <option value="lucia">Lucía (Cadete)</option>
+                    </select>
                 </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="gameDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Time</label>
+                    <input type="time" id="gameTime" required>
+                </div>
+                <div class="form-group">
+                    <label>Opponent</label>
+                    <input type="text" id="opponent" placeholder="e.g., FC Barcelona" required>
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="location" placeholder="e.g., Home Field">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes" rows="3" placeholder="Any additional information..."></textarea>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn-cancel" id="cancelAdd">Cancel</button>
+                    <button type="submit" class="btn-save">Save Game</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="viewGameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Game Details</h3>
+                <button class="close-btn" id="closeViewModal">&times;</button>
+            </div>
+            <div class="game-details" id="gameDetails"></div>
+            <div class="form-buttons">
+                <button type="button" class="btn-delete" id="deleteGame">Delete</button>
+                <button type="button" class="btn-cancel" id="closeView">Close</button>
             </div>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="games-data.js"></script>
     <script>
         let currentDate = new Date();
-        let games = JSON.parse(localStorage.getItem('basketballGames')) || [];
+        let games = [];
+        let selectedGameId = null;
+
+        // Initialize games from gamesData or localStorage
+        function initializeGames() {
+            const storedGames = localStorage.getItem('kidsGames');
+
+            if (storedGames) {
+                games = JSON.parse(storedGames);
+            } else if (typeof gamesData !== 'undefined') {
+                games = gamesData;
+                if (games.length > 0) {
+                    localStorage.setItem('kidsGames', JSON.stringify(games));
+                }
+            } else {
+                games = [];
+            }
+
+            renderCalendar();
+        }
+
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+
+        const playerInfo = {
+            carmen: { name: 'Carmen', category: 'Mini', class: 'carmen' },
+            marta: { name: 'Marta', category: 'Infantil', class: 'marta' },
+            lucia: { name: 'Lucía', category: 'Cadete', class: 'lucia' }
+        };
 
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
 
-            // Update month header
-            const monthNames = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"];
             document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
 
-            // Get first day of month and number of days
-            const firstDay = new Date(year, month, 1).getDay();
+            // Get first day of month (0=Sunday, 1=Monday, ..., 6=Saturday)
+            let firstDay = new Date(year, month, 1).getDay();
+            // Convert to Monday-based week (Monday=0, Sunday=6)
+            firstDay = (firstDay === 0) ? 6 : firstDay - 1;
+
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const daysInPrevMonth = new Date(year, month, 0).getDate();
 
             const calendarDays = document.getElementById('calendarDays');
             calendarDays.innerHTML = '';
 
-            // Previous month days
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+            const todayDate = today.getDate();
+
+            // Add days from previous month
             for (let i = firstDay - 1; i >= 0; i--) {
                 const day = daysInPrevMonth - i;
-                const dayDiv = createDayElement(day, true, year, month - 1);
+                const dayDiv = createDayElement(day, true);
                 calendarDays.appendChild(dayDiv);
             }
 
-            // Current month days
-            const today = new Date();
             for (let day = 1; day <= daysInMonth; day++) {
-                const isToday = day === today.getDate() &&
-                               month === today.getMonth() &&
-                               year === today.getFullYear();
-                const dayDiv = createDayElement(day, false, year, month, isToday);
+                const dayDiv = createDayElement(day, false);
+                if (isCurrentMonth && day === todayDate) {
+                    dayDiv.classList.add('today');
+                }
+
+                const dayGames = games.filter(game => {
+                    const gameDate = new Date(game.date);
+                    return gameDate.getFullYear() === year &&
+                           gameDate.getMonth() === month &&
+                           gameDate.getDate() === day;
+                });
+
+                dayGames.forEach(game => {
+                    const gameDiv = document.createElement('div');
+                    gameDiv.className = `game ${game.player}`;
+                    gameDiv.innerHTML = `
+                        <div style="font-weight: bold;">${game.time} vs ${game.opponent}</div>
+                        <div style="font-size: 0.9em; opacity: 0.95;">${game.location}</div>
+                    `;
+                    gameDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        viewGame(game.id);
+                    });
+                    dayDiv.appendChild(gameDiv);
+                });
+
                 calendarDays.appendChild(dayDiv);
             }
 
-            // Next month days
             const totalCells = calendarDays.children.length;
-            const remainingCells = 42 - totalCells; // 6 rows × 7 days
+            const remainingCells = 42 - totalCells;
             for (let day = 1; day <= remainingCells; day++) {
-                const dayDiv = createDayElement(day, true, year, month + 1);
+                const dayDiv = createDayElement(day, true);
                 calendarDays.appendChild(dayDiv);
             }
         }
 
-        function createDayElement(day, isOtherMonth, year, month, isToday = false) {
+        function createDayElement(day, isOtherMonth) {
             const dayDiv = document.createElement('div');
             dayDiv.className = 'day';
-            if (isOtherMonth) dayDiv.classList.add('other-month');
-            if (isToday) dayDiv.classList.add('today');
-
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const dayGames = games.filter(game => game.date === dateStr);
-
-            if (dayGames.length > 0) {
-                dayDiv.classList.add('has-game');
+            if (isOtherMonth) {
+                dayDiv.classList.add('other-month');
             }
 
-            dayDiv.innerHTML = `
-                <div class="day-number">${day}</div>
-                ${dayGames.length > 0 ? `<div class="game-indicator">${dayGames.length} game${dayGames.length > 1 ? 's' : ''}</div>` : ''}
-            `;
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = day;
+            dayDiv.appendChild(dayNumber);
 
-            dayDiv.onclick = () => {
-                document.getElementById('gameDate').value = dateStr;
-                document.getElementById('gameDate').scrollIntoView({ behavior: 'smooth' });
-            };
+            if (!isOtherMonth) {
+                dayDiv.addEventListener('click', () => {
+                    openAddGameModal(day);
+                });
+            }
 
             return dayDiv;
         }
 
-        function changeMonth(delta) {
-            currentDate.setMonth(currentDate.getMonth() + delta);
-            renderCalendar();
+        function openAddGameModal(day = null) {
+            const modal = document.getElementById('addGameModal');
+            modal.classList.add('active');
+
+            if (day) {
+                const year = currentDate.getFullYear();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const dayStr = String(day).padStart(2, '0');
+                document.getElementById('gameDate').value = `${year}-${month}-${dayStr}`;
+            } else {
+                document.getElementById('gameDate').value = '';
+            }
+
+            document.getElementById('gameForm').reset();
+            if (day) {
+                const year = currentDate.getFullYear();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const dayStr = String(day).padStart(2, '0');
+                document.getElementById('gameDate').value = `${year}-${month}-${dayStr}`;
+            }
         }
 
-        function goToToday() {
-            currentDate = new Date();
-            renderCalendar();
+        function closeAddGameModal() {
+            document.getElementById('addGameModal').classList.remove('active');
         }
 
-        function addGame(event) {
-            event.preventDefault();
+        function viewGame(gameId) {
+            const game = games.find(g => g.id === gameId);
+            if (!game) return;
+
+            selectedGameId = gameId;
+            const modal = document.getElementById('viewGameModal');
+            const details = document.getElementById('gameDetails');
+
+            const player = playerInfo[game.player];
+            details.innerHTML = `
+                <p><strong>Player:</strong> ${player.name} (${player.category})</p>
+                <p><strong>Date:</strong> ${new Date(game.date).toLocaleDateString()}</p>
+                <p><strong>Time:</strong> ${game.time}</p>
+                <p><strong>Opponent:</strong> ${game.opponent}</p>
+                ${game.location ? `<p><strong>Location:</strong> ${game.location}</p>` : ''}
+                ${game.notes ? `<p><strong>Notes:</strong> ${game.notes}</p>` : ''}
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeViewGameModal() {
+            document.getElementById('viewGameModal').classList.remove('active');
+            selectedGameId = null;
+        }
+
+        function deleteGame() {
+            if (!selectedGameId) return;
+
+            if (confirm('Are you sure you want to delete this game?')) {
+                games = games.filter(g => g.id !== selectedGameId);
+                localStorage.setItem('kidsGames', JSON.stringify(games));
+                closeViewGameModal();
+                renderCalendar();
+            }
+        }
+
+        function exportToPdf() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const monthName = monthNames[month];
+
+            // Add title
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            doc.text(`Basketball Games - ${monthName} ${year}`, 105, 15, { align: 'center' });
+
+            // Get all games for this month
+            const monthGames = games.filter(game => {
+                const gameDate = new Date(game.date);
+                return gameDate.getFullYear() === year && gameDate.getMonth() === month;
+            }).sort((a, b) => {
+                const dateA = new Date(a.date + ' ' + a.time);
+                const dateB = new Date(b.date + ' ' + b.time);
+                return dateA - dateB;
+            });
+
+            // Prepare table data
+            const tableData = monthGames.map(game => {
+                const gameDate = new Date(game.date);
+                const dayOfWeekIndex = gameDate.getDay();
+                // Convert to Monday-based week
+                const dayOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][(dayOfWeekIndex === 0) ? 6 : dayOfWeekIndex - 1];
+                const day = gameDate.getDate();
+
+                return [
+                    `${dayOfWeek} ${day}`,
+                    game.time,
+                    playerInfo[game.player].name,
+                    game.opponent,
+                    game.location,
+                    game.notes
+                ];
+            });
+
+            // Add table
+            doc.autoTable({
+                startY: 25,
+                head: [['Date', 'Time', 'Player', 'Opponent', 'Location', 'League']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [102, 126, 234],
+                    fontSize: 10,
+                    fontStyle: 'bold',
+                    halign: 'center'
+                },
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 3
+                },
+                columnStyles: {
+                    0: { cellWidth: 25, halign: 'center' },
+                    1: { cellWidth: 20, halign: 'center' },
+                    2: { cellWidth: 25, halign: 'center' },
+                    3: { cellWidth: 35 },
+                    4: { cellWidth: 40 },
+                    5: { cellWidth: 'auto' }
+                },
+                didParseCell: function(data) {
+                    if (data.section === 'body' && data.column.index === 2) {
+                        const playerName = data.cell.text[0];
+                        if (playerName === 'Carmen') {
+                            data.cell.styles.fillColor = [255, 107, 107];
+                            data.cell.styles.textColor = [255, 255, 255];
+                        } else if (playerName === 'Marta') {
+                            data.cell.styles.fillColor = [78, 205, 196];
+                            data.cell.styles.textColor = [255, 255, 255];
+                        } else if (playerName === 'Lucía') {
+                            data.cell.styles.fillColor = [255, 217, 61];
+                            data.cell.styles.textColor = [45, 52, 54];
+                        }
+                    }
+                },
+                margin: { top: 25, bottom: 20, left: 10, right: 10 }
+            });
+
+            // Add footer
+            const pageCount = doc.internal.getNumberOfPages();
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.text(`Page ${i} of ${pageCount}`, 105, 287, { align: 'center' });
+                doc.text(`Generated on ${new Date().toLocaleDateString()}`, 105, 292, { align: 'center' });
+            }
+
+            // Save the PDF
+            doc.save(`Basketball-Games-${monthName}-${year}.pdf`);
+        }
+
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        document.getElementById('addGameBtn').addEventListener('click', () => {
+            openAddGameModal();
+        });
+
+        document.getElementById('exportPdfBtn').addEventListener('click', exportToPdf);
+
+        document.getElementById('closeAddModal').addEventListener('click', closeAddGameModal);
+        document.getElementById('cancelAdd').addEventListener('click', closeAddGameModal);
+
+        document.getElementById('closeViewModal').addEventListener('click', closeViewGameModal);
+        document.getElementById('closeView').addEventListener('click', closeViewGameModal);
+
+        document.getElementById('deleteGame').addEventListener('click', deleteGame);
+
+        document.getElementById('gameForm').addEventListener('submit', (e) => {
+            e.preventDefault();
 
             const game = {
                 id: Date.now(),
+                player: document.getElementById('player').value,
                 date: document.getElementById('gameDate').value,
                 time: document.getElementById('gameTime').value,
                 opponent: document.getElementById('opponent').value,
                 location: document.getElementById('location').value,
-                type: document.getElementById('gameType').value
+                notes: document.getElementById('notes').value
             };
 
             games.push(game);
-            games.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+            localStorage.setItem('kidsGames', JSON.stringify(games));
 
-            localStorage.setItem('basketballGames', JSON.stringify(games));
-
-            document.getElementById('gameForm').reset();
+            closeAddGameModal();
             renderCalendar();
-            renderGamesList();
-        }
+        });
 
-        function deleteGame(id) {
-            if (confirm('Are you sure you want to delete this game?')) {
-                games = games.filter(game => game.id !== id);
-                localStorage.setItem('basketballGames', JSON.stringify(games));
-                renderCalendar();
-                renderGamesList();
-            }
-        }
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
 
-        function renderGamesList() {
-            const gamesList = document.getElementById('gamesList');
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const upcomingGames = games.filter(game => new Date(game.date) >= today);
-
-            if (upcomingGames.length === 0) {
-                gamesList.innerHTML = '<div class="no-games">No upcoming games scheduled</div>';
-                return;
-            }
-
-            gamesList.innerHTML = upcomingGames.map(game => {
-                const gameDate = new Date(game.date);
-                const dateStr = gameDate.toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-
-                return `
-                    <div class="game-item ${game.type}">
-                        <div class="game-date">${dateStr} at ${formatTime(game.time)}</div>
-                        <div class="game-details"><strong>vs ${game.opponent}</strong></div>
-                        <div class="game-details">📍 ${game.location}</div>
-                        <span class="game-type ${game.type}">${game.type.toUpperCase()}</span>
-                        <button class="delete-btn" onclick="deleteGame(${game.id})">Delete</button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function formatTime(time) {
-            const [hours, minutes] = time.split(':');
-            const hour = parseInt(hours);
-            const ampm = hour >= 12 ? 'PM' : 'AM';
-            const displayHour = hour % 12 || 12;
-            return `${displayHour}:${minutes} ${ampm}`;
-        }
-
-        // Initialize
-        renderCalendar();
-        renderGamesList();
-
-        // Set default date to today
-        document.getElementById('gameDate').valueAsDate = new Date();
+        // Initialize the app
+        initializeGames();
     </script>
 </body>
 </html>
