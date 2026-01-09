@@ -507,15 +507,15 @@
         <div class="kids-info">
             <div class="kid-badge carmen">
                 <span>🏀</span>
-                <span>Carmen - Mini</span>
+                <span>Mini</span>
             </div>
             <div class="kid-badge marta">
                 <span>🏀</span>
-                <span>Marta - Infantil</span>
+                <span>Infantil</span>
             </div>
             <div class="kid-badge lucia">
                 <span>🏀</span>
-                <span>Lucía - Cadete</span>
+                <span>Cadete</span>
             </div>
         </div>
 
@@ -580,9 +580,9 @@
             "July", "August", "September", "October", "November", "December"];
 
         const playerInfo = {
-            carmen: { name: 'Carmen', category: 'Mini', class: 'carmen' },
-            marta: { name: 'Marta', category: 'Infantil', class: 'marta' },
-            lucia: { name: 'Lucía', category: 'Cadete', class: 'lucia' }
+            carmen: { name: 'Mini', category: 'Mini', class: 'carmen' },
+            marta: { name: 'Infantil', category: 'Infantil', class: 'marta' },
+            lucia: { name: 'Cadete', category: 'Cadete', class: 'lucia' }
         };
 
         function renderCalendar() {
@@ -676,7 +676,7 @@
 
             const player = playerInfo[game.player];
             details.innerHTML = `
-                <p><strong>Player:</strong> ${player.name} (${player.category})</p>
+                <p><strong>Category:</strong> ${player.category}</p>
                 <p><strong>Date:</strong> ${new Date(game.date).toLocaleDateString()}</p>
                 <p><strong>Time:</strong> ${game.time}</p>
                 <p><strong>Opponent:</strong> ${game.opponent}</p>
@@ -736,7 +736,7 @@
             // Add table
             doc.autoTable({
                 startY: 25,
-                head: [['Date', 'Time', 'Player', 'Opponent', 'Location', 'League']],
+                head: [['Date', 'Time', 'Category', 'Opponent', 'Location', 'League']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: {
@@ -759,14 +759,14 @@
                 },
                 didParseCell: function(data) {
                     if (data.section === 'body' && data.column.index === 2) {
-                        const playerName = data.cell.text[0];
-                        if (playerName === 'Carmen') {
+                        const category = data.cell.text[0];
+                        if (category === 'Mini') {
                             data.cell.styles.fillColor = [255, 107, 107];
                             data.cell.styles.textColor = [255, 255, 255];
-                        } else if (playerName === 'Marta') {
+                        } else if (category === 'Infantil') {
                             data.cell.styles.fillColor = [78, 205, 196];
                             data.cell.styles.textColor = [255, 255, 255];
-                        } else if (playerName === 'Lucía') {
+                        } else if (category === 'Cadete') {
                             data.cell.styles.fillColor = [255, 217, 61];
                             data.cell.styles.textColor = [45, 52, 54];
                         }
