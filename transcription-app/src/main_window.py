@@ -7,7 +7,8 @@ import sys
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QTextEdit, QLabel, QComboBox, QTabWidget,
-    QFileDialog, QProgressBar, QGroupBox, QStatusBar, QMessageBox, QCheckBox
+    QFileDialog, QProgressBar, QGroupBox, QStatusBar, QMessageBox, QCheckBox,
+    QDialog, QTableWidget, QTableWidgetItem, QHeaderView, QDialogButtonBox
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QIcon
@@ -18,6 +19,36 @@ from typing import List
 from transcription_engine import TranscriptionEngine
 from audio_recorder import AudioRecorder
 from export_handler import TranscriptionSegment, ExportHandler
+from model_manager import ModelManager, ModelInfo
+
+
+class ModelDownloadThread(QThread):
+    """Thread for downloading models in the background"""
+    progress = pyqtSignal(str, int)
+    finished = pyqtSignal(bool, str)  # success, model_id
+
+    def __init__(self, engine, model_id):
+        super().__init__()
+        self.engine = engine
+        self.model_id = model_id
+
+    def run(self):
+        try:
+            # Load the model (NeMo automatically downloads it)
+            self.progress.emit(f"Downloading {self.model_id}...", 0)
+            success = self.engine.load_model(self.model_id, 'en')
+
+            if success:
+                # Mark as downloaded in model manager
+                self.engine.model_manager.mark_model_downloaded(self.model_id)
+                self.progress.emit(f"Downloaded {self.model_id}", 100)
+                self.finished.emit(True, self.model_id)
+            else:
+                self.progress.emit(f"Failed to download {self.model_id}", -1)
+                self.finished.emit(False, self.model_id)
+        except Exception as e:
+            self.progress.emit(f"Error: {str(e)}", -1)
+            self.finished.emit(False, self.model_id)
 
 
 class ModelLoaderThread(QThread):
@@ -54,6 +85,316 @@ class TranscriptionThread(QThread):
             self.finished.emit(segments)
         except Exception as e:
             self.error.emit(str(e))
+
+
+class ModelSelectorDialog(QDialog):
+    """Dialog for selecting and downloading ASR models"""
+
+    def __init__(self, model_manager: ModelManager, engine: TranscriptionEngine, parent=None):
+        super().__init__(parent)
+        self.model_manager = model_manager
+        self.engine = engine
+        self.selected_model_id = None
+        self.download_thread = None
+
+        self.setWindowTitle("Model Manager")
+        self.setMinimumSize(900, 600)
+        self.init_ui()
+
+    def init_ui(self):
+        """Initialize the model selector UI"""
+        layout = QVBoxLayout(self)
+        layout.setSpacing(15)
+
+        # Header
+        header = QLabel("Available ASR Models")
+        header.setStyleSheet("font-size: 18px; font-weight: bold; color: #0d7377; margin-bottom: 10px;")
+        layout.addWidget(header)
+
+        # Cache info
+        cache_info = self.model_manager.get_model_summary()
+        info_text = (
+            f"Downloaded: {cache_info['downloaded']}/{cache_info['total_models']} models  |  "
+            f"Cache Size: {cache_info['cache_size_mb']} MB  |  "
+            f"Cache Location: {cache_info['cache_dir']}"
+        )
+        cache_label = QLabel(info_text)
+        cache_label.setStyleSheet("font-size: 11px; color: #888888; margin-bottom: 10px;")
+        layout.addWidget(cache_label)
+
+        # Models table
+        self.models_table = QTableWidget()
+        self.models_table.setColumnCount(6)
+        self.models_table.setHorizontalHeaderLabels([
+            "Model Name", "Languages", "Size (MB)", "Category", "Status", "Actions"
+        ])
+
+        # Set table properties
+        self.models_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self.models_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        self.models_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        self.models_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        self.models_table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+        self.models_table.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
+        self.models_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.models_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+
+        # Style the table
+        self.models_table.setStyleSheet("""
+            QTableWidget {
+                background-color: #2d2d2d;
+                color: #e0e0e0;
+                border: 1px solid #404040;
+                gridline-color: #404040;
+            }
+            QTableWidget::item {
+                padding: 8px;
+            }
+            QTableWidget::item:selected {
+                background-color: #0d7377;
+            }
+            QHeaderView::section {
+                background-color: #252525;
+                color: #e0e0e0;
+                padding: 8px;
+                border: 1px solid #404040;
+                font-weight: bold;
+            }
+        """)
+
+        # Populate table
+        self.populate_table()
+
+        layout.addWidget(self.models_table)
+
+        # Progress bar for downloads
+        self.download_progress = QProgressBar()
+        self.download_progress.setVisible(False)
+        layout.addWidget(self.download_progress)
+
+        # Status label
+        self.status_label = QLabel("")
+        self.status_label.setStyleSheet("color: #888888; font-size: 11px;")
+        layout.addWidget(self.status_label)
+
+        # Button box
+        button_box = QDialogButtonBox()
+
+        # Clear cache button
+        self.clear_cache_btn = QPushButton("🗑️ Clear Cache")
+        self.clear_cache_btn.clicked.connect(self.clear_cache)
+        button_box.addButton(self.clear_cache_btn, QDialogButtonBox.ButtonRole.ActionRole)
+
+        # Refresh button
+        self.refresh_btn = QPushButton("🔄 Refresh")
+        self.refresh_btn.clicked.connect(self.refresh_table)
+        button_box.addButton(self.refresh_btn, QDialogButtonBox.ButtonRole.ActionRole)
+
+        # Close button
+        close_btn = button_box.addButton(QDialogButtonBox.StandardButton.Close)
+        close_btn.clicked.connect(self.accept)
+
+        layout.addWidget(button_box)
+
+    def populate_table(self):
+        """Populate the models table"""
+        all_models = self.model_manager.get_all_models()
+        self.models_table.setRowCount(len(all_models))
+
+        row = 0
+        for model_key, model_info in all_models.items():
+            # Model name
+            name_item = QTableWidgetItem(model_info.name)
+            self.models_table.setItem(row, 0, name_item)
+
+            # Languages
+            languages_str = ", ".join(model_info.languages)
+            languages_item = QTableWidgetItem(languages_str)
+            self.models_table.setItem(row, 1, languages_item)
+
+            # Size
+            size_item = QTableWidgetItem(f"{model_info.size_mb}")
+            size_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.models_table.setItem(row, 2, size_item)
+
+            # Category
+            category_item = QTableWidgetItem(model_info.category.title())
+            self.models_table.setItem(row, 3, category_item)
+
+            # Status
+            status_text = "✅ Downloaded" if model_info.is_downloaded else "⬇️ Not Downloaded"
+            status_item = QTableWidgetItem(status_text)
+            if model_info.is_downloaded:
+                status_item.setForeground(Qt.GlobalColor.green)
+            self.models_table.setItem(row, 4, status_item)
+
+            # Actions button
+            action_widget = QWidget()
+            action_layout = QHBoxLayout(action_widget)
+            action_layout.setContentsMargins(4, 4, 4, 4)
+            action_layout.setSpacing(4)
+
+            if model_info.is_downloaded:
+                # Use button
+                use_btn = QPushButton("Use")
+                use_btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #0d7377;
+                        color: white;
+                        padding: 4px 12px;
+                        font-size: 11px;
+                    }
+                    QPushButton:hover {
+                        background-color: #14a085;
+                    }
+                """)
+                use_btn.clicked.connect(lambda checked, m=model_info: self.use_model(m))
+                action_layout.addWidget(use_btn)
+
+                # Delete button
+                delete_btn = QPushButton("Delete")
+                delete_btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #d32f2f;
+                        color: white;
+                        padding: 4px 12px;
+                        font-size: 11px;
+                    }
+                    QPushButton:hover {
+                        background-color: #f44336;
+                    }
+                """)
+                delete_btn.clicked.connect(lambda checked, m=model_info: self.delete_model(m))
+                action_layout.addWidget(delete_btn)
+            else:
+                # Download button
+                download_btn = QPushButton("Download")
+                download_btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #1976d2;
+                        color: white;
+                        padding: 4px 12px;
+                        font-size: 11px;
+                    }
+                    QPushButton:hover {
+                        background-color: #2196f3;
+                    }
+                """)
+                download_btn.clicked.connect(lambda checked, m=model_info: self.download_model(m))
+                action_layout.addWidget(download_btn)
+
+            self.models_table.setCellWidget(row, 5, action_widget)
+            row += 1
+
+    def download_model(self, model_info: ModelInfo):
+        """Download a model"""
+        reply = QMessageBox.question(
+            self,
+            "Download Model",
+            f"Download {model_info.name}?\n\n"
+            f"Size: {model_info.size_mb} MB\n"
+            f"Languages: {', '.join(model_info.languages)}\n\n"
+            f"This may take several minutes depending on your internet connection.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if reply == QMessageBox.StandardButton.Yes:
+            self.status_label.setText(f"Downloading {model_info.name}...")
+            self.download_progress.setVisible(True)
+            self.download_progress.setRange(0, 0)  # Indeterminate
+
+            # Start download in thread
+            self.download_thread = ModelDownloadThread(self.engine, model_info.model_id)
+            self.download_thread.progress.connect(self.on_download_progress)
+            self.download_thread.finished.connect(self.on_download_finished)
+            self.download_thread.start()
+
+    def on_download_progress(self, message: str, progress: int):
+        """Handle download progress updates"""
+        self.status_label.setText(message)
+        if progress >= 0:
+            if self.download_progress.maximum() == 0:
+                self.download_progress.setRange(0, 100)
+            self.download_progress.setValue(progress)
+
+    def on_download_finished(self, success: bool, model_id: str):
+        """Handle download completion"""
+        self.download_progress.setVisible(False)
+
+        if success:
+            self.status_label.setText(f"Successfully downloaded {model_id}")
+            QMessageBox.information(
+                self,
+                "Download Complete",
+                f"Model {model_id} has been downloaded successfully!\n\n"
+                f"You can now use this model for transcription."
+            )
+            self.refresh_table()
+        else:
+            self.status_label.setText(f"Failed to download {model_id}")
+            QMessageBox.critical(
+                self,
+                "Download Failed",
+                f"Failed to download {model_id}. Please check your internet connection and try again."
+            )
+
+    def use_model(self, model_info: ModelInfo):
+        """Use a downloaded model"""
+        reply = QMessageBox.question(
+            self,
+            "Switch Model",
+            f"Switch to {model_info.name}?\n\n"
+            f"The current model will be unloaded and this model will be loaded.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if reply == QMessageBox.StandardButton.Yes:
+            self.selected_model_id = model_info.model_id
+            self.status_label.setText(f"Switching to {model_info.name}...")
+            self.accept()  # Close dialog and return to main window
+
+    def delete_model(self, model_info: ModelInfo):
+        """Delete a downloaded model"""
+        reply = QMessageBox.question(
+            self,
+            "Delete Model",
+            f"Delete {model_info.name}?\n\n"
+            f"This will free up {model_info.size_mb} MB of disk space.\n"
+            f"You can re-download it later if needed.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if reply == QMessageBox.StandardButton.Yes:
+            self.model_manager.clear_cache(model_info.model_id)
+            self.status_label.setText(f"Deleted {model_info.name}")
+            self.refresh_table()
+
+    def clear_cache(self):
+        """Clear all model cache"""
+        reply = QMessageBox.question(
+            self,
+            "Clear All Cache",
+            "Clear all downloaded models?\n\n"
+            "This will delete all downloaded models and free up disk space.\n"
+            "You can re-download them later if needed.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if reply == QMessageBox.StandardButton.Yes:
+            cache_size = self.model_manager.get_cache_size()
+            self.model_manager.clear_cache()
+            self.status_label.setText(f"Cleared {cache_size} MB of cache")
+            self.refresh_table()
+            QMessageBox.information(
+                self,
+                "Cache Cleared",
+                f"Successfully cleared {cache_size} MB of model cache."
+            )
+
+    def refresh_table(self):
+        """Refresh the models table"""
+        self.models_table.clearContents()
+        self.populate_table()
 
 
 class MainWindow(QMainWindow):
@@ -218,6 +559,12 @@ class MainWindow(QMainWindow):
         settings_layout.addWidget(self.device_label)
 
         settings_layout.addStretch()
+
+        # Model manager button
+        self.model_manager_btn = QPushButton("📦 Model Manager")
+        self.model_manager_btn.clicked.connect(self.open_model_manager)
+        self.model_manager_btn.setEnabled(False)
+        settings_layout.addWidget(self.model_manager_btn)
 
         # Language selector
         lang_label = QLabel("Language:")
@@ -456,6 +803,7 @@ class MainWindow(QMainWindow):
             self.select_file_btn.setEnabled(True)
             self.lang_combo.setEnabled(True)
             self.diarization_checkbox.setEnabled(True)
+            self.model_manager_btn.setEnabled(True)
 
             # Initialize audio recorder
             self.init_audio_recorder()
@@ -713,6 +1061,80 @@ class MainWindow(QMainWindow):
         """Clear the file transcription text"""
         self.file_text_edit.clear()
         self.file_segments = []
+
+    def open_model_manager(self):
+        """Open the model manager dialog"""
+        if not self.engine or not hasattr(self.engine, 'model_manager'):
+            QMessageBox.warning(
+                self,
+                "Model Manager Not Available",
+                "The model manager is not available. Please wait for initialization to complete."
+            )
+            return
+
+        # Open model selector dialog
+        dialog = ModelSelectorDialog(self.engine.model_manager, self.engine, self)
+        result = dialog.exec()
+
+        # If a model was selected, switch to it
+        if result == QDialog.DialogCode.Accepted and dialog.selected_model_id:
+            self.switch_model(dialog.selected_model_id)
+
+    def switch_model(self, model_id: str):
+        """Switch to a different model"""
+        # Get current language
+        current_language = self.lang_combo.currentData()
+
+        # Show loading indicator
+        self.status_bar.showMessage(f"Loading model {model_id}...")
+        self.progress_bar.setVisible(True)
+        self.progress_bar.setRange(0, 0)
+
+        # Disable controls during loading
+        self.record_btn.setEnabled(False)
+        self.select_file_btn.setEnabled(False)
+        self.lang_combo.setEnabled(False)
+        self.diarization_checkbox.setEnabled(False)
+        self.model_manager_btn.setEnabled(False)
+
+        # Unload current model
+        self.engine.unload_model()
+
+        # Load new model in thread
+        self.model_loader = ModelLoaderThread(self.engine, model_id, current_language)
+        self.model_loader.progress.connect(self.on_engine_progress)
+        self.model_loader.finished.connect(self.on_model_switched)
+        self.model_loader.start()
+
+    def on_model_switched(self, success: bool):
+        """Handle model switching completion"""
+        self.progress_bar.setVisible(False)
+
+        if success:
+            self.status_bar.showMessage("Model switched successfully")
+
+            # Re-enable controls
+            self.record_btn.setEnabled(True)
+            self.select_file_btn.setEnabled(True)
+            self.lang_combo.setEnabled(True)
+            self.diarization_checkbox.setEnabled(True)
+            self.model_manager_btn.setEnabled(True)
+
+            QMessageBox.information(
+                self,
+                "Model Switched",
+                "The model has been switched successfully!\n\nYou can now continue transcribing with the new model."
+            )
+        else:
+            self.status_bar.showMessage("Failed to switch model")
+            QMessageBox.critical(
+                self,
+                "Error",
+                "Failed to switch to the selected model. The previous model may still be loaded."
+            )
+
+            # Try to re-enable controls
+            self.model_manager_btn.setEnabled(True)
 
     def closeEvent(self, event):
         """Handle application closing"""

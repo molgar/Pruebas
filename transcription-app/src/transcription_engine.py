@@ -12,6 +12,7 @@ from pathlib import Path
 import tempfile
 import os
 from export_handler import TranscriptionSegment
+from model_manager import ModelManager, ModelInfo
 
 
 class TranscriptionEngine:
@@ -39,6 +40,9 @@ class TranscriptionEngine:
         self.is_loaded = False
         self.diarization_enabled = False
         self.current_language = 'en'
+
+        # Initialize model manager
+        self.model_manager = ModelManager()
 
     def _get_device(self) -> str:
         """Detect and return the best available device"""
@@ -82,6 +86,11 @@ class TranscriptionEngine:
                 self.progress_callback("Model loaded successfully", 100)
 
             self.is_loaded = True
+
+            # Mark model as downloaded in model manager
+            if self.model_manager and not self.model_manager.is_model_downloaded(model_name):
+                self.model_manager.mark_model_downloaded(model_name)
+
             return True
 
         except Exception as e:
