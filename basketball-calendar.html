@@ -60,6 +60,22 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .kid-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .kid-badge.inactive {
+            opacity: 0.3;
+        }
+
+        .kid-badge.active {
+            border-color: #2d3436;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .kid-badge.carmen {
@@ -504,15 +520,15 @@
         </div>
 
         <div class="kids-info">
-            <div class="kid-badge carmen">
+            <div class="kid-badge carmen" data-player="carmen">
                 <span>🏀</span>
                 <span>Mini</span>
             </div>
-            <div class="kid-badge marta">
+            <div class="kid-badge marta" data-player="marta">
                 <span>🏀</span>
                 <span>Infantil</span>
             </div>
-            <div class="kid-badge lucia">
+            <div class="kid-badge lucia" data-player="lucia">
                 <span>🏀</span>
                 <span>Cadete</span>
             </div>
@@ -563,6 +579,7 @@
         let currentDate = new Date();
         let games = [];
         let selectedGameId = null;
+        let activeFilters = new Set(); // Track active category filters
 
         // Initialize games from gamesData
         function initializeGames() {
@@ -583,6 +600,35 @@
             marta: { name: 'Infantil', category: 'Infantil', class: 'marta' },
             lucia: { name: 'Cadete', category: 'Cadete', class: 'lucia' }
         };
+
+        function toggleFilter(player) {
+            if (activeFilters.has(player)) {
+                activeFilters.delete(player);
+            } else {
+                activeFilters.add(player);
+            }
+            updateBadgeStates();
+            renderCalendar();
+        }
+
+        function updateBadgeStates() {
+            const badges = document.querySelectorAll('.kid-badge');
+            badges.forEach(badge => {
+                const player = badge.getAttribute('data-player');
+                badge.classList.remove('active', 'inactive');
+
+                if (activeFilters.size === 0) {
+                    // No filters active - all badges normal
+                    return;
+                }
+
+                if (activeFilters.has(player)) {
+                    badge.classList.add('active');
+                } else {
+                    badge.classList.add('inactive');
+                }
+            });
+        }
 
         function renderCalendar() {
             const year = currentDate.getFullYear();
@@ -620,9 +666,17 @@
 
                 const dayGames = games.filter(game => {
                     const gameDate = new Date(game.date);
-                    return gameDate.getFullYear() === year &&
-                           gameDate.getMonth() === month &&
-                           gameDate.getDate() === day;
+                    const dateMatch = gameDate.getFullYear() === year &&
+                                     gameDate.getMonth() === month &&
+                                     gameDate.getDate() === day;
+
+                    // If no filters active, show all games
+                    if (activeFilters.size === 0) {
+                        return dateMatch;
+                    }
+
+                    // If filters active, only show games matching active filters
+                    return dateMatch && activeFilters.has(game.player);
                 });
 
                 dayGames.forEach(game => {
@@ -808,6 +862,14 @@
                 if (e.target === modal) {
                     modal.classList.remove('active');
                 }
+            });
+        });
+
+        // Add click handlers to filter badges
+        document.querySelectorAll('.kid-badge').forEach(badge => {
+            badge.addEventListener('click', () => {
+                const player = badge.getAttribute('data-player');
+                toggleFilter(player);
             });
         });
 
