@@ -14,7 +14,7 @@ const gamesData = [
     "player": "marta",
     "date": "2026-01-26",
     "time": "19:00",
-    "opponent": "SEK A",
+    "opponent": "SEK B",
     "location": "Tejera",
     "notes": "FERE Infantil"
   },
