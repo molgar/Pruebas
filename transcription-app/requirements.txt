@@ -1,0 +1,21 @@
+# Core Dependencies
+PyQt6==6.6.1
+PyQt6-QtMultimedia==6.6.1
+
+# NVIDIA NeMo and Speech Recognition
+nemo_toolkit[asr]==1.23.0
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# Audio Processing
+pyaudio==0.2.14
+soundfile==0.12.1
+librosa==0.10.1
+pydub==0.25.1
+
+# GPU Acceleration
+nvidia-ml-py3==7.352.0
+
+# Utilities
+numpy>=1.24.0
+scipy>=1.11.0

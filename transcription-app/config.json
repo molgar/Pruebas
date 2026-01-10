@@ -1,0 +1,21 @@
+{
+  "model": {
+    "name": "nvidia/parakeet-tdt-1.1b",
+    "device": "auto"
+  },
+  "audio": {
+    "sample_rate": 16000,
+    "chunk_duration": 3.0,
+    "channels": 1
+  },
+  "ui": {
+    "theme": "dark",
+    "window_title": "AI Transcription Studio - Parakeet TDT",
+    "min_width": 1000,
+    "min_height": 700
+  },
+  "transcription": {
+    "live_buffer_size": 3,
+    "file_batch_size": 1
+  }
+}
