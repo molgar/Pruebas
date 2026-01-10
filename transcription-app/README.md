@@ -6,6 +6,10 @@ A modern Windows desktop application for transcribing audio to text using NVIDIA
 
 - **Live Transcription**: Real-time transcription from your microphone
 - **File Transcription**: Transcribe recorded audio files (WAV, MP3, FLAC, OGG, M4A)
+- **Multiple Language Support**: English, Spanish, French, and Multilingual auto-detection
+- **Speaker Diarization**: Identify and label different speakers in conversations
+- **Export Formats**: Export transcriptions as TXT, SRT, VTT, or JSON
+- **Timestamp Tracking**: Accurate timing information for all transcribed segments
 - **GPU Accelerated**: Uses NVIDIA CUDA for fast processing
 - **Modern UI**: Clean, dark-themed interface built with PyQt6
 - **Local Processing**: Everything runs on your PC - no cloud services required
@@ -94,24 +98,55 @@ Navigate to the transcription-app directory and run:
 python main.py
 ```
 
+### Changing Language
+
+1. Select your preferred language from the **Language** dropdown (English, Spanish, French, or Multilingual)
+2. The model will reload automatically with the new language
+3. All transcriptions will use the selected language
+
+### Enabling Speaker Detection
+
+1. Check the **Enable Speaker Detection** checkbox
+2. Transcriptions will now include speaker labels (Speaker 1, Speaker 2, etc.)
+3. Different speakers in the audio will be automatically identified and labeled
+
 ### Live Transcription
 
 1. Select the **Live Transcription** tab
 2. Choose your microphone from the dropdown menu
-3. Click **Start Recording** button
-4. Speak into your microphone
-5. Watch as your speech is transcribed in real-time
-6. Click **Stop Recording** when finished
-7. Use **Clear Text** to reset the transcription
+3. (Optional) Enable speaker detection for multi-person conversations
+4. Click **Start Recording** button
+5. Speak into your microphone
+6. Watch as your speech is transcribed in real-time with speaker labels
+7. Click **Stop Recording** when finished
+8. Use **Export** buttons to save as TXT, SRT, or VTT format
+9. Use **Clear Text** to reset the transcription
 
 ### File Transcription
 
 1. Select the **File Transcription** tab
 2. Click **Select Audio File** and choose your audio file
-3. Click **Transcribe File**
-4. Wait for the transcription to complete
-5. The transcribed text will appear in the text area
-6. Use **Clear Text** to reset the transcription
+3. (Optional) Enable speaker detection to identify different speakers
+4. Click **Transcribe File**
+5. Wait for the transcription to complete
+6. The transcribed text will appear with timestamps and speaker labels
+7. Use **Export** buttons to save as TXT, SRT, VTT, or JSON format
+8. Use **Clear Text** to reset the transcription
+
+### Exporting Transcriptions
+
+The application supports multiple export formats:
+
+- **TXT**: Plain text format with optional speaker labels
+- **SRT**: SubRip subtitle format with timestamps (compatible with video players)
+- **VTT**: WebVTT subtitle format with timestamps (HTML5 video standard)
+- **JSON**: Structured data format with complete metadata (timestamps, speakers, duration)
+
+To export:
+1. Complete a transcription (live or file)
+2. Click the desired export button (💾 TXT, 💾 SRT, 💾 VTT, or 💾 JSON)
+3. Choose where to save the file
+4. The transcription will be exported with proper formatting
 
 ### Supported Audio Formats
 
@@ -120,6 +155,13 @@ python main.py
 - FLAC
 - OGG
 - M4A
+
+### Supported Languages
+
+- **English**: Optimized for North American and British English
+- **Spanish (Español)**: Full support for Spanish language
+- **French (Français)**: Full support for French language
+- **Multilingual**: Auto-detects language (works with English, Spanish, French)
 
 ## Performance Tips
 
@@ -230,16 +272,25 @@ For issues and questions:
 ## Future Enhancements
 
 Potential features for future versions:
-- Export transcriptions to various formats (TXT, SRT, VTT)
-- Speaker diarization (who spoke when)
-- Multiple language support
-- Custom model fine-tuning
+- Custom model fine-tuning for specific domains
 - Batch processing of multiple files
 - Transcription editing and correction tools
-- Timestamp annotations
 - Audio playback synchronized with transcription
+- Advanced speaker identification with voice profiles
+- Real-time translation between languages
+- Noise reduction and audio preprocessing
+- Cloud backup and sync options
 
 ## Version History
+
+### Version 2.0.0 (Current)
+- ✅ **Export formats**: Added TXT, SRT, VTT, and JSON export
+- ✅ **Speaker diarization**: Automatic speaker detection and labeling
+- ✅ **Multi-language support**: English, Spanish, French, and Multilingual
+- ✅ **Timestamp tracking**: Complete timing information for all segments
+- Enhanced UI with language selector and speaker detection toggle
+- Improved export functionality with multiple format options
+- Better segment management for accurate subtitle generation
 
 ### Version 1.0.0
 - Initial release

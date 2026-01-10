@@ -59,14 +59,32 @@ When you first launch the application:
 
 ## Using the App
 
+### Selecting Language
+
+1. Use the **Language** dropdown in the top bar
+2. Choose from:
+   - English
+   - Spanish (Español)
+   - French (Français)
+   - Multilingual (Auto-detect)
+3. The model will reload with your selected language
+
+### Enabling Speaker Detection
+
+1. Check the **"Enable Speaker Detection"** box in the top bar
+2. Different speakers will be automatically labeled in transcriptions
+3. Speaker labels appear as [Speaker 1], [Speaker 2], etc.
+
 ### Live Transcription (Real-time)
 
 1. Click the **"Live Transcription"** tab
 2. Select your microphone from the dropdown
-3. Click **"Start Recording"** 🎙️
-4. Speak clearly into your microphone
-5. Watch the transcription appear in real-time!
-6. Click **"Stop Recording"** ⏹️ when done
+3. (Optional) Enable speaker detection for conversations
+4. Click **"Start Recording"** 🎙️
+5. Speak clearly into your microphone
+6. Watch the transcription appear in real-time with speaker labels!
+7. Click **"Stop Recording"** ⏹️ when done
+8. Export using **💾 TXT**, **💾 SRT**, or **💾 VTT** buttons
 
 **Tips for Best Results:**
 - Speak clearly at a normal pace
@@ -79,9 +97,11 @@ When you first launch the application:
 1. Click the **"File Transcription"** tab
 2. Click **"Select Audio File"** 📁
 3. Choose your audio file (WAV, MP3, FLAC, OGG, M4A)
-4. Click **"Transcribe File"** ▶️
-5. Wait for processing to complete
-6. View the transcription result
+4. (Optional) Enable speaker detection to identify different speakers
+5. Click **"Transcribe File"** ▶️
+6. Wait for processing to complete
+7. View the transcription with timestamps and speaker labels
+8. Export using **💾 TXT**, **💾 SRT**, **💾 VTT**, or **💾 JSON** buttons
 
 **Supported Formats:**
 - WAV (best quality)
@@ -89,6 +109,17 @@ When you first launch the application:
 - FLAC
 - OGG
 - M4A
+
+### Exporting Transcriptions
+
+After transcribing, you can export in multiple formats:
+
+- **TXT**: Plain text with speaker labels
+- **SRT**: Subtitle format for video players
+- **VTT**: Web video subtitle format
+- **JSON**: Complete data with timestamps and metadata
+
+Simply click the export button for your desired format and choose where to save!
 
 ## Common Issues
 
