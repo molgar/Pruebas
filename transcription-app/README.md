@@ -176,36 +176,83 @@ The application works on CPU, but expect:
 
 ## 📥 Installation
 
-### Quick Start (5 Minutes)
+### 🎯 Which Installation Path Should I Choose?
+
+**Choose your installation path based on your hardware:**
+
+| Your Hardware | Installation Path | Speed |
+|---------------|------------------|-------|
+| **NVIDIA GPU** (RTX, GTX, etc.) | [GPU Installation](#-option-1-gpu-installation-with-cuda-faster) ⚡ | **10-20x faster** |
+| **Any other GPU** (Intel, AMD) | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Slower but works |
+| **No dedicated GPU** | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Slower but works |
+| **Not sure?** | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Safest choice |
+
+**Not sure if you have an NVIDIA GPU?**
+- Open Windows Device Manager → Display Adapters
+- If you see "NVIDIA" → Use GPU Installation
+- If you see "Intel" or "AMD" → Use CPU Installation
+
+---
+
+### ⚡ Option 1: GPU Installation (with CUDA) - Faster
+
+**For computers with NVIDIA GPUs (GeForce RTX, GTX, Quadro, Tesla)**
+
+#### Prerequisites
+- ✅ NVIDIA GPU with 4GB+ VRAM
+- ✅ Windows 10/11 (64-bit)
+- ✅ 8GB+ RAM
+- ✅ 5GB free disk space
 
 #### Step 1: Install Python
 
 1. Download Python 3.9+ from [python.org](https://www.python.org/downloads/)
 2. **Important**: Check "Add Python to PATH" during installation
-3. Verify installation:
+3. Verify:
    ```bash
    python --version
+   # Should show: Python 3.9.x or higher
    ```
 
-#### Step 2: Install NVIDIA CUDA (For GPU Support)
+#### Step 2: Install NVIDIA CUDA Toolkit
 
-1. Download [CUDA Toolkit 11.8+](https://developer.nvidia.com/cuda-downloads)
-2. Follow installation wizard
-3. Verify installation:
+1. Check if you have NVIDIA GPU:
+   ```bash
+   # Open PowerShell or Command Prompt
+   nvidia-smi
+   ```
+   If this works, you have an NVIDIA GPU! Continue to step 2.
+
+2. Download [CUDA Toolkit 11.8+](https://developer.nvidia.com/cuda-downloads)
+3. Run installer and follow wizard (default options are fine)
+4. Verify CUDA installation:
    ```bash
    nvcc --version
    nvidia-smi
    ```
+   Both commands should work without errors.
 
-#### Step 3: Install PyAudio Dependencies
+**Troubleshooting:**
+- If `nvidia-smi` fails: Update NVIDIA drivers from [nvidia.com/drivers](https://www.nvidia.com/drivers)
+- If `nvcc` fails: CUDA didn't install correctly, try reinstalling
 
-**Option A - Using pip (Windows):**
-Download PyAudio wheel from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio) and install:
+#### Step 3: Install PyAudio
+
+**Option A - Using pipwin (Easiest):**
 ```bash
-pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+pip install pipwin
+pipwin install pyaudio
 ```
 
-**Option B - Using Conda:**
+**Option B - Using wheel file:**
+1. Download from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio)
+2. Choose the right version (e.g., `cp39` for Python 3.9)
+3. Install:
+   ```bash
+   pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+   ```
+
+**Option C - Using Conda:**
 ```bash
 conda install pyaudio
 ```
@@ -223,20 +270,150 @@ cd transcription-app
 pip install -r requirements.txt
 ```
 
-This installs:
-- PyQt6 (GUI framework)
-- NVIDIA NeMo Toolkit (ASR engine)
-- PyTorch (Deep learning)
-- Librosa (Audio processing)
-- Additional utilities
+This will automatically install:
+- ✅ PyTorch **with CUDA support**
+- ✅ NVIDIA NeMo Toolkit
+- ✅ PyQt6 (GUI)
+- ✅ Librosa (audio processing)
+- ✅ All other dependencies
 
-**⚠️ First Run**: The app will download the Parakeet TDT model (~1-2 GB). This may take 5-15 minutes depending on your internet speed.
+**Note:** PyTorch will detect CUDA and install the GPU version automatically!
 
-#### Step 6: Launch Application
+#### Step 6: Verify GPU Installation
+
+```bash
+python -c "import torch; print(f'CUDA Available: {torch.cuda.is_available()}')"
+```
+
+Should output: `CUDA Available: True`
+
+If it says `False`, see [GPU Not Detected](#gpu-not-detected) troubleshooting.
+
+#### Step 7: Launch Application
 
 ```bash
 python main.py
 ```
+
+**First run:** Downloads Parakeet TDT model (~1-2 GB), takes 5-15 minutes.
+
+**Expected:** App shows "Device: NVIDIA GeForce RTX..." in the interface.
+
+---
+
+### 🐢 Option 2: CPU-Only Installation (No GPU)
+
+**For laptops, Intel/AMD GPUs, or any computer without NVIDIA GPU**
+
+#### Prerequisites
+- ✅ Windows 10/11 (64-bit)
+- ✅ 8GB+ RAM (16GB recommended for CPU mode)
+- ✅ 5GB free disk space
+- ❌ No NVIDIA GPU required!
+
+#### Step 1: Install Python
+
+1. Download Python 3.9+ from [python.org](https://www.python.org/downloads/)
+2. **Important**: Check "Add Python to PATH" during installation
+3. Verify:
+   ```bash
+   python --version
+   # Should show: Python 3.9.x or higher
+   ```
+
+#### Step 2: Skip CUDA Installation
+
+**Do NOT install CUDA!** You don't need it for CPU-only mode.
+
+#### Step 3: Install PyAudio
+
+**Option A - Using pipwin (Easiest):**
+```bash
+pip install pipwin
+pipwin install pyaudio
+```
+
+**Option B - Using wheel file:**
+1. Download from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio)
+2. Choose the right version (e.g., `cp39` for Python 3.9)
+3. Install:
+   ```bash
+   pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+   ```
+
+**Option C - Using Conda:**
+```bash
+conda install pyaudio
+```
+
+#### Step 4: Clone Repository
+
+```bash
+git clone https://github.com/yourusername/transcription-app.git
+cd transcription-app
+```
+
+#### Step 5: Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+This will automatically install:
+- ✅ PyTorch **CPU-only version** (smaller, no CUDA)
+- ✅ NVIDIA NeMo Toolkit (works on CPU too)
+- ✅ PyQt6 (GUI)
+- ✅ Librosa (audio processing)
+- ✅ All other dependencies
+
+**Note:** PyTorch will detect NO GPU and install the CPU version automatically!
+
+**Disk space:** CPU-only installation uses ~2 GB less than GPU version.
+
+#### Step 6: Verify CPU Installation
+
+```bash
+python -c "import torch; print(f'PyTorch Version: {torch.__version__}'); print(f'CUDA Available: {torch.cuda.is_available()}')"
+```
+
+Should output:
+```
+PyTorch Version: 2.x.x+cpu
+CUDA Available: False
+```
+
+This is **correct** for CPU-only mode!
+
+#### Step 7: Launch Application
+
+```bash
+python main.py
+```
+
+**First run:** Downloads Parakeet TDT model (~1-2 GB), takes 5-15 minutes.
+
+**Expected:** App shows "Device: CPU" in the interface.
+
+---
+
+### 📊 Performance Comparison
+
+After installation, here's what to expect:
+
+| Task | GPU Mode (CUDA) | CPU-Only Mode |
+|------|----------------|---------------|
+| **Model Loading** | 10-20 seconds | 30-60 seconds |
+| **Live Transcription** | Near real-time | 2-5 second delay |
+| **1 min audio file** | ~30 seconds | 2-5 minutes |
+| **10 min audio file** | ~5 minutes | 20-50 minutes |
+| **1 hour podcast** | ~30 minutes | 2-5 hours |
+
+**CPU Mode Tips:**
+- ✅ Perfect for occasional use
+- ✅ Works great for short files
+- ✅ Process long files overnight
+- ✅ Same accuracy as GPU mode
+- ✅ All features available
 
 ---
 
@@ -745,10 +922,19 @@ transcription-app/
 A: Yes! Everything runs on your PC. Your audio never leaves your machine.
 
 **Q: Do I need an NVIDIA GPU?**
-A: No, but it's highly recommended for real-time performance. CPU works but is slower.
+A: No! The app works perfectly on CPU-only mode. GPU is 10-20x faster but not required. See [Installation Options](#-which-installation-path-should-i-choose) for details.
+
+**Q: Will this work on my laptop without a GPU?**
+A: Yes! Follow the [CPU-Only Installation](#-option-2-cpu-only-installation-no-gpu) guide. It works on any laptop - just slower than GPU mode.
+
+**Q: What if I have an Intel or AMD GPU?**
+A: Use [CPU-Only Installation](#-option-2-cpu-only-installation-no-gpu). The app only supports NVIDIA GPUs for acceleration. Intel/AMD GPUs run in CPU mode.
+
+**Q: Can I install without CUDA?**
+A: Absolutely! If you don't have an NVIDIA GPU, skip CUDA entirely. Follow the [CPU-Only Installation](#-option-2-cpu-only-installation-no-gpu) which is simpler and works great.
 
 **Q: How accurate is the transcription?**
-A: Very high accuracy with clear audio. Quality depends on audio clarity, accents, and background noise.
+A: Very high accuracy with clear audio. Quality depends on audio clarity, accents, and background noise. **Accuracy is identical** on CPU and GPU - only speed differs.
 
 **Q: Can I use this commercially?**
 A: Check the licenses of the components (NeMo, PyQt6). NeMo is Apache 2.0, PyQt6 requires GPL or commercial license for commercial use.
