@@ -9,6 +9,8 @@ from typing import Optional, Callable, List, Dict, Tuple
 import numpy as np
 import soundfile as sf
 from pathlib import Path
+import tempfile
+import os
 from export_handler import TranscriptionSegment
 
 
@@ -332,12 +334,13 @@ class TranscriptionEngine:
             raise RuntimeError("Model not loaded. Call load_model() first.")
 
         try:
-            # Save temporary audio file
-            temp_path = Path("temp_audio.wav")
-            sf.write(temp_path, audio_data, sample_rate)
+            # Save temporary audio file to system temp directory (no admin rights needed)
+            with tempfile.NamedTemporaryFile(mode='wb', suffix='.wav', delete=False) as temp_file:
+                temp_path = temp_file.name
+                sf.write(temp_path, audio_data, sample_rate)
 
             # Transcribe
-            transcription = self.model.transcribe([str(temp_path)])[0]
+            transcription = self.model.transcribe([temp_path])[0]
 
             # Calculate duration
             duration = len(audio_data) / sample_rate
@@ -346,10 +349,13 @@ class TranscriptionEngine:
             # Detect speaker if diarization is enabled
             speaker = None
             if self.diarization_enabled:
-                speaker = self._detect_speaker(str(temp_path), 0, duration)
+                speaker = self._detect_speaker(temp_path, 0, duration)
 
-            # Clean up
-            temp_path.unlink(missing_ok=True)
+            # Clean up temporary file
+            try:
+                os.unlink(temp_path)
+            except:
+                pass  # Ignore errors during cleanup
 
             return TranscriptionSegment(
                 text=transcription,

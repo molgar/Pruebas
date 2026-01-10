@@ -180,12 +180,13 @@ The application works on CPU, but expect:
 
 **Choose your installation path based on your hardware:**
 
-| Your Hardware | Installation Path | Speed |
-|---------------|------------------|-------|
-| **NVIDIA GPU** (RTX, GTX, etc.) | [GPU Installation](#-option-1-gpu-installation-with-cuda-faster) ⚡ | **10-20x faster** |
-| **Any other GPU** (Intel, AMD) | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Slower but works |
-| **No dedicated GPU** | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Slower but works |
-| **Not sure?** | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Safest choice |
+| Your Hardware | Installation Path | Speed | Admin Rights? |
+|---------------|------------------|-------|---------------|
+| **NVIDIA GPU** (RTX, GTX, etc.) | [GPU Installation](#-option-1-gpu-installation-with-cuda-faster) ⚡ | **10-20x faster** | May need for CUDA |
+| **Any other GPU** (Intel, AMD) | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Slower but works | **Not required** ✅ |
+| **No dedicated GPU** | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Slower but works | **Not required** ✅ |
+| **No admin rights?** | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Slower but works | **Not required** ✅ |
+| **Not sure?** | [CPU Installation](#-option-2-cpu-only-installation-no-gpu) 🐢 | Safest choice | **Not required** ✅ |
 
 **Not sure if you have an NVIDIA GPU?**
 - Open Windows Device Manager → Display Adapters
@@ -203,18 +204,26 @@ The application works on CPU, but expect:
 - ✅ Windows 10/11 (64-bit)
 - ✅ 8GB+ RAM
 - ✅ 5GB free disk space
+- ❌ **No administrator rights required!**
 
-#### Step 1: Install Python
+#### Step 1: Install Python (No Admin Required)
 
 1. Download Python 3.9+ from [python.org](https://www.python.org/downloads/)
-2. **Important**: Check "Add Python to PATH" during installation
+2. **Important for non-admin installation**:
+   - ✅ Check "Add Python to PATH"
+   - ✅ Select "Install for current user only" (no admin rights needed)
+   - ❌ Uncheck "Install for all users" (requires admin)
 3. Verify:
    ```bash
    python --version
    # Should show: Python 3.9.x or higher
    ```
 
+**Note:** Installing for current user stores Python in your user folder (`%LOCALAPPDATA%\Programs\Python`), avoiding the need for administrator rights.
+
 #### Step 2: Install NVIDIA CUDA Toolkit
+
+**⚠️ Note:** CUDA installation **may require administrator rights**. If you don't have admin access, use [CPU-Only Installation](#-option-2-cpu-only-installation-no-gpu) instead.
 
 1. Check if you have NVIDIA GPU:
    ```bash
@@ -224,7 +233,7 @@ The application works on CPU, but expect:
    If this works, you have an NVIDIA GPU! Continue to step 2.
 
 2. Download [CUDA Toolkit 11.8+](https://developer.nvidia.com/cuda-downloads)
-3. Run installer and follow wizard (default options are fine)
+3. Run installer (may prompt for admin rights) and follow wizard (default options are fine)
 4. Verify CUDA installation:
    ```bash
    nvcc --version
@@ -235,6 +244,7 @@ The application works on CPU, but expect:
 **Troubleshooting:**
 - If `nvidia-smi` fails: Update NVIDIA drivers from [nvidia.com/drivers](https://www.nvidia.com/drivers)
 - If `nvcc` fails: CUDA didn't install correctly, try reinstalling
+- **No admin rights?** → Use [CPU-Only Installation](#-option-2-cpu-only-installation-no-gpu) (works without CUDA!)
 
 #### Step 3: Install PyAudio
 
@@ -305,21 +315,29 @@ python main.py
 
 **For laptops, Intel/AMD GPUs, or any computer without NVIDIA GPU**
 
+**🎉 Perfect for users without administrator rights!**
+
 #### Prerequisites
 - ✅ Windows 10/11 (64-bit)
 - ✅ 8GB+ RAM (16GB recommended for CPU mode)
 - ✅ 5GB free disk space
 - ❌ No NVIDIA GPU required!
+- ❌ **No administrator rights required!**
 
-#### Step 1: Install Python
+#### Step 1: Install Python (No Admin Required)
 
 1. Download Python 3.9+ from [python.org](https://www.python.org/downloads/)
-2. **Important**: Check "Add Python to PATH" during installation
+2. **Important for non-admin installation**:
+   - ✅ Check "Add Python to PATH"
+   - ✅ Select "Install for current user only" (no admin rights needed)
+   - ❌ Uncheck "Install for all users" (requires admin)
 3. Verify:
    ```bash
    python --version
    # Should show: Python 3.9.x or higher
    ```
+
+**Note:** Installing for current user stores Python in your user folder (`%LOCALAPPDATA%\Programs\Python`), avoiding the need for administrator rights.
 
 #### Step 2: Skip CUDA Installation
 
@@ -353,10 +371,15 @@ git clone https://github.com/yourusername/transcription-app.git
 cd transcription-app
 ```
 
-#### Step 5: Install Dependencies
+#### Step 5: Install Dependencies (No Admin Required)
 
 ```bash
 pip install -r requirements.txt
+```
+
+**If you get a permission error**, use the `--user` flag to install to your user directory:
+```bash
+pip install --user -r requirements.txt
 ```
 
 This will automatically install:
@@ -369,6 +392,8 @@ This will automatically install:
 **Note:** PyTorch will detect NO GPU and install the CPU version automatically!
 
 **Disk space:** CPU-only installation uses ~2 GB less than GPU version.
+
+**Installation location:** Packages install to `%APPDATA%\Python\` (user directory, no admin needed).
 
 #### Step 6: Verify CPU Installation
 
@@ -932,6 +957,15 @@ A: Use [CPU-Only Installation](#-option-2-cpu-only-installation-no-gpu). The app
 
 **Q: Can I install without CUDA?**
 A: Absolutely! If you don't have an NVIDIA GPU, skip CUDA entirely. Follow the [CPU-Only Installation](#-option-2-cpu-only-installation-no-gpu) which is simpler and works great.
+
+**Q: Can I install and run this without administrator rights?**
+A: Yes! The [CPU-Only Installation](#-option-2-cpu-only-installation-no-gpu) works perfectly without admin rights. Install Python for "current user only", use `pip install --user` if needed, and the app runs from your user directory.
+
+**Q: Do I need admin rights for GPU installation?**
+A: CUDA Toolkit installation typically requires admin rights. If you don't have admin access, use the [CPU-Only Installation](#-option-2-cpu-only-installation-no-gpu) instead.
+
+**Q: Where does the app store files?**
+A: All files are stored in user-accessible locations: Python packages in `%APPDATA%\Python\`, models in user cache, temp files in system temp directory. No system-wide changes required.
 
 **Q: How accurate is the transcription?**
 A: Very high accuracy with clear audio. Quality depends on audio clarity, accents, and background noise. **Accuracy is identical** on CPU and GPU - only speed differs.
