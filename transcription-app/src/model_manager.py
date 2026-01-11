@@ -330,6 +330,15 @@ class ModelManager:
             models_sorted = sorted(models, key=lambda m: m.size_mb)
             return models_sorted[len(models_sorted) // 2]
 
+    def get_cache_dir(self) -> str:
+        """
+        Get the cache directory path
+
+        Returns:
+            String path to cache directory
+        """
+        return str(self.cache_dir)
+
     def get_model_summary(self) -> Dict:
         """
         Get summary of model cache status
