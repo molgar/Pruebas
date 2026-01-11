@@ -75,7 +75,7 @@ const gamesData = [
   {
     "id": 9,
     "player": "carmen",
-    "date": "2026-01-23",
+    "date": "2026-01-24",
     "time": "9:30",
     "opponent": "Miramar Torremolinos",
     "location": "SEK",
@@ -84,7 +84,7 @@ const gamesData = [
   {
     "id": 10,
     "player": "carmen",
-    "date": "2026-01-30",
+    "date": "2026-01-31",
     "time": "11:30",
     "opponent": "EBG '15",
     "location": "EBG '15",
