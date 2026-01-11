@@ -136,6 +136,7 @@
 
         .calendar {
             padding: 30px;
+            overflow-x: auto;
         }
 
         .calendar-grid {
@@ -327,7 +328,11 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             body {
-                padding: 10px;
+                padding: 5px;
+            }
+
+            .container {
+                border-radius: 10px;
             }
 
             .kids-info {
@@ -373,11 +378,11 @@
             }
 
             .calendar {
-                padding: 15px;
+                padding: 10px;
             }
 
             .calendar-grid {
-                gap: 5px;
+                gap: 4px;
             }
 
             .weekday {
@@ -436,18 +441,22 @@
                 min-width: auto;
             }
 
+            .calendar {
+                padding: 8px;
+            }
+
             .calendar-grid {
-                gap: 5px;
+                gap: 3px;
             }
 
             .weekday {
-                font-size: 0.75em;
-                padding: 4px;
+                font-size: 0.7em;
+                padding: 3px;
             }
 
             .day {
                 min-height: 70px;
-                padding: 4px;
+                padding: 3px;
             }
 
             .day-number {
