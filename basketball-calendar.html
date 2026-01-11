@@ -138,11 +138,10 @@
             padding: 30px;
         }
 
-        .weekdays {
+        .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 10px;
-            margin-bottom: 10px;
         }
 
         .weekday {
@@ -150,15 +149,6 @@
             font-weight: bold;
             color: #667eea;
             padding: 8px;
-            border: 2px solid transparent;
-            border-radius: 10px;
-            box-sizing: border-box;
-        }
-
-        .days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
         }
 
         .day {
@@ -386,25 +376,18 @@
                 padding: 15px;
             }
 
-            .weekdays {
+            .calendar-grid {
                 gap: 5px;
             }
 
             .weekday {
                 font-size: 0.85em;
                 padding: 5px;
-                border: 2px solid transparent;
-                border-radius: 10px;
-            }
-
-            .days {
-                gap: 5px;
             }
 
             .day {
                 min-height: 80px;
                 padding: 5px;
-                border-radius: 10px;
             }
 
             .day-number {
@@ -453,25 +436,18 @@
                 min-width: auto;
             }
 
-            .weekdays {
+            .calendar-grid {
                 gap: 5px;
             }
 
             .weekday {
                 font-size: 0.75em;
                 padding: 4px;
-                border: 2px solid transparent;
-                border-radius: 10px;
-            }
-
-            .days {
-                gap: 5px;
             }
 
             .day {
                 min-height: 70px;
                 padding: 4px;
-                border-radius: 10px;
             }
 
             .day-number {
@@ -529,7 +505,7 @@
         </div>
 
         <div class="calendar">
-            <div class="weekdays">
+            <div class="calendar-grid" id="calendarGrid">
                 <div class="weekday">Mon</div>
                 <div class="weekday">Tue</div>
                 <div class="weekday">Wed</div>
@@ -538,7 +514,6 @@
                 <div class="weekday">Sat</div>
                 <div class="weekday">Sun</div>
             </div>
-            <div class="days" id="calendarDays"></div>
         </div>
     </div>
 
@@ -627,8 +602,11 @@
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-            const calendarDays = document.getElementById('calendarDays');
-            calendarDays.innerHTML = '';
+            const calendarGrid = document.getElementById('calendarGrid');
+            // Remove all day cells but keep weekday headers (first 7 children)
+            while (calendarGrid.children.length > 7) {
+                calendarGrid.removeChild(calendarGrid.lastChild);
+            }
 
             const today = new Date();
             const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
@@ -641,7 +619,7 @@
                 const prevYear = month === 0 ? year - 1 : year;
                 const dayDiv = createDayElement(day, true);
                 addGamesToDay(dayDiv, day, prevMonth, prevYear);
-                calendarDays.appendChild(dayDiv);
+                calendarGrid.appendChild(dayDiv);
             }
 
             // Add days from current month
@@ -651,18 +629,18 @@
                     dayDiv.classList.add('today');
                 }
                 addGamesToDay(dayDiv, day, month, year);
-                calendarDays.appendChild(dayDiv);
+                calendarGrid.appendChild(dayDiv);
             }
 
             // Add days from next month
-            const totalCells = calendarDays.children.length;
+            const totalCells = calendarGrid.children.length - 7; // Subtract weekday headers
             const remainingCells = 42 - totalCells;
             for (let day = 1; day <= remainingCells; day++) {
                 const nextMonth = month === 11 ? 0 : month + 1;
                 const nextYear = month === 11 ? year + 1 : year;
                 const dayDiv = createDayElement(day, true);
                 addGamesToDay(dayDiv, day, nextMonth, nextYear);
-                calendarDays.appendChild(dayDiv);
+                calendarGrid.appendChild(dayDiv);
             }
         }
 
