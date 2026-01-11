@@ -733,10 +733,18 @@
             doc.setFont(undefined, 'bold');
             doc.text(`Basketball Games - ${monthName} ${year}`, 105, 15, { align: 'center' });
 
-            // Get all games for this month
+            // Get all games for this month, respecting active filters
             const monthGames = games.filter(game => {
                 const gameDate = new Date(game.date);
-                return gameDate.getFullYear() === year && gameDate.getMonth() === month;
+                const dateMatch = gameDate.getFullYear() === year && gameDate.getMonth() === month;
+
+                // If no filters active, include all games
+                if (activeFilters.size === 0) {
+                    return dateMatch;
+                }
+
+                // If filters active, only include games matching active filters
+                return dateMatch && activeFilters.has(game.player);
             }).sort((a, b) => {
                 const dateA = new Date(a.date + ' ' + a.time);
                 const dateB = new Date(b.date + ' ' + b.time);
