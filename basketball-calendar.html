@@ -134,6 +134,63 @@
             gap: 10px;
         }
 
+        .dropdown-container {
+            position: relative;
+        }
+
+        .export-calendar-btn {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-calendar-btn:hover {
+            background: #45b8af;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 220px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #2d3436;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
         .calendar {
             padding: 30px;
             overflow-x: auto;
@@ -372,8 +429,24 @@
                 padding: 14px;
             }
 
+            .export-calendar-btn {
+                width: 100%;
+                padding: 14px;
+                justify-content: center;
+            }
+
             .button-group {
                 flex-direction: column;
+                width: 100%;
+            }
+
+            .dropdown-container {
+                width: 100%;
+            }
+
+            .dropdown-menu {
+                right: auto;
+                left: 0;
                 width: 100%;
             }
 
@@ -510,6 +583,16 @@
             </div>
             <div class="button-group">
                 <button class="export-pdf-btn" id="exportPdfBtn">📄 Export to PDF</button>
+                <div class="dropdown-container">
+                    <button class="export-calendar-btn" id="exportCalendarBtn">📅 Export to Calendar</button>
+                    <div class="dropdown-menu" id="calendarDropdown">
+                        <div class="dropdown-item" data-export="all">Download All Games</div>
+                        <div class="dropdown-item" data-export="mini">Download Mini Only</div>
+                        <div class="dropdown-item" data-export="infantil">Download Infantil Only</div>
+                        <div class="dropdown-item" data-export="cadete">Download Cadete Only</div>
+                        <div class="dropdown-item" id="showSubscriptionInfo">📋 Subscription Info</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -539,8 +622,61 @@
         </div>
     </div>
 
+    <div class="modal" id="subscriptionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Calendar Subscription</h3>
+                <button class="close-btn" id="closeSubscriptionModal">&times;</button>
+            </div>
+            <div style="color: #2d3436; line-height: 1.6;">
+                <p style="margin-bottom: 15px;"><strong>Subscribe to automatically receive calendar updates:</strong></p>
+
+                <div style="margin-bottom: 20px;">
+                    <p style="font-weight: bold; color: #667eea; margin-bottom: 8px;">iOS (iPhone/iPad):</p>
+                    <ol style="margin-left: 20px;">
+                        <li>Open Settings → Calendar → Accounts → Add Account → Other</li>
+                        <li>Select "Add Subscribed Calendar"</li>
+                        <li>Enter one of these URLs:</li>
+                    </ol>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 0.85em; word-break: break-all;">
+                        <strong>All Games:</strong><br>webcal://molgar.github.io/Pruebas/calendars/basketball-all.ics<br><br>
+                        <strong>Mini Only:</strong><br>webcal://molgar.github.io/Pruebas/calendars/basketball-mini.ics<br><br>
+                        <strong>Infantil Only:</strong><br>webcal://molgar.github.io/Pruebas/calendars/basketball-infantil.ics<br><br>
+                        <strong>Cadete Only:</strong><br>webcal://molgar.github.io/Pruebas/calendars/basketball-cadete.ics
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <p style="font-weight: bold; color: #667eea; margin-bottom: 8px;">Google Calendar:</p>
+                    <ol style="margin-left: 20px;">
+                        <li>Open Google Calendar on desktop</li>
+                        <li>Click "+" next to "Other calendars" → "From URL"</li>
+                        <li>Paste the URL (replace "webcal://" with "https://")</li>
+                    </ol>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <p style="font-weight: bold; color: #667eea; margin-bottom: 8px;">Outlook:</p>
+                    <ol style="margin-left: 20px;">
+                        <li>Open Outlook → Calendar</li>
+                        <li>Add calendar → Subscribe from web</li>
+                        <li>Paste the URL</li>
+                    </ol>
+                </div>
+
+                <p style="background: #fff3cd; padding: 12px; border-radius: 5px; border-left: 4px solid #ffc107; margin-top: 15px; font-size: 0.9em;">
+                    <strong>Note:</strong> Subscribed calendars typically update every 24-48 hours. For immediate access, use the "Download" options above and import manually.
+                </p>
+            </div>
+            <div class="form-buttons">
+                <button type="button" class="btn-cancel" id="closeSubscription">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ics@3.7.2/dist/bundle.min.js"></script>
     <script src="games-data.js"></script>
     <script>
         let currentDate = new Date();
@@ -725,6 +861,92 @@
             selectedGameId = null;
         }
 
+        function generateICS(gamesToExport, calendarName) {
+            const { createEvents } = window.ics;
+
+            const events = gamesToExport.map(game => {
+                const player = playerInfo[game.player];
+
+                // Parse date and time
+                const [year, month, day] = game.date.split('-').map(Number);
+                const [hour, minute] = game.time.split(':').map(Number);
+
+                // Create start date/time array [year, month, day, hour, minute]
+                const startDateTime = [year, month, day, hour, minute];
+
+                // Calculate end time (90 minutes later)
+                const startDate = new Date(year, month - 1, day, hour, minute);
+                const endDate = new Date(startDate.getTime() + 90 * 60000); // Add 90 minutes
+                const endDateTime = [
+                    endDate.getFullYear(),
+                    endDate.getMonth() + 1,
+                    endDate.getDate(),
+                    endDate.getHours(),
+                    endDate.getMinutes()
+                ];
+
+                return {
+                    start: startDateTime,
+                    end: endDateTime,
+                    title: `${game.time} - ${player.category} vs ${game.opponent}`,
+                    description: `${player.category} game vs ${game.opponent}\n${game.notes || ''}`,
+                    location: game.location,
+                    categories: [player.category],
+                    status: 'CONFIRMED',
+                    busyStatus: 'BUSY',
+                    uid: `game-${game.id}@basketballcalendar.github.io`,
+                    productId: 'Basketball Calendar'
+                };
+            });
+
+            return createEvents(events);
+        }
+
+        function exportToICS(filterType) {
+            let gamesToExport;
+            let fileName;
+
+            // Filter games based on selection
+            if (filterType === 'all') {
+                gamesToExport = games;
+                fileName = 'Basketball-All-Games.ics';
+            } else if (filterType === 'mini') {
+                gamesToExport = games.filter(g => g.player === 'carmen');
+                fileName = 'Basketball-Mini.ics';
+            } else if (filterType === 'infantil') {
+                gamesToExport = games.filter(g => g.player === 'marta');
+                fileName = 'Basketball-Infantil.ics';
+            } else if (filterType === 'cadete') {
+                gamesToExport = games.filter(g => g.player === 'lucia');
+                fileName = 'Basketball-Cadete.ics';
+            }
+
+            // Sort games by date
+            gamesToExport = gamesToExport.sort((a, b) => {
+                const dateA = new Date(a.date + ' ' + a.time);
+                const dateB = new Date(b.date + ' ' + b.time);
+                return dateA - dateB;
+            });
+
+            // Generate ICS file
+            const result = generateICS(gamesToExport, fileName);
+
+            if (result.error) {
+                alert('Error generating calendar file: ' + result.error);
+                return;
+            }
+
+            // Download the file
+            const blob = new Blob([result.value], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
         function exportToPdf() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
@@ -841,6 +1063,49 @@
         });
 
         document.getElementById('exportPdfBtn').addEventListener('click', exportToPdf);
+
+        // Calendar export dropdown toggle
+        const exportCalendarBtn = document.getElementById('exportCalendarBtn');
+        const calendarDropdown = document.getElementById('calendarDropdown');
+
+        exportCalendarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            calendarDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            calendarDropdown.classList.remove('show');
+        });
+
+        // Prevent dropdown from closing when clicking inside it
+        calendarDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Handle dropdown item clicks
+        document.querySelectorAll('.dropdown-item[data-export]').forEach(item => {
+            item.addEventListener('click', () => {
+                const exportType = item.getAttribute('data-export');
+                exportToICS(exportType);
+                calendarDropdown.classList.remove('show');
+            });
+        });
+
+        // Show subscription info
+        document.getElementById('showSubscriptionInfo').addEventListener('click', () => {
+            document.getElementById('subscriptionModal').classList.add('active');
+            calendarDropdown.classList.remove('show');
+        });
+
+        // Close subscription modal
+        document.getElementById('closeSubscriptionModal').addEventListener('click', () => {
+            document.getElementById('subscriptionModal').classList.remove('active');
+        });
+
+        document.getElementById('closeSubscription').addEventListener('click', () => {
+            document.getElementById('subscriptionModal').classList.remove('active');
+        });
 
         document.getElementById('closeViewModal').addEventListener('click', closeViewGameModal);
         document.getElementById('closeView').addEventListener('click', closeViewGameModal);
