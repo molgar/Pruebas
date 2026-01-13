@@ -298,6 +298,96 @@ const gamesData = [
     "opponent": "SEK",
     "location": "Pabellón Carlos Cabezas",
     "notes": "Cadete Femenino"
+  },
+  {
+    "id": 34,
+    "player": "carmen",
+    "date": "2026-01-24",
+    "time": "10:00",
+    "opponent": "Leon XIII B",
+    "location": "Leon XIII",
+    "notes": "FERE Mini"
+  },
+  {
+    "id": 35,
+    "player": "carmen",
+    "date": "2026-01-30",
+    "time": "18:00",
+    "opponent": "Asuncion B",
+    "location": "Asuncion",
+    "notes": "FERE Mini"
+  },
+  {
+    "id": 36,
+    "player": "carmen",
+    "date": "2026-02-11",
+    "time": "17:30",
+    "opponent": "Los Olivos A",
+    "location": "SEK",
+    "notes": "FERE Mini"
+  },
+  {
+    "id": 37,
+    "player": "carmen",
+    "date": "2026-02-17",
+    "time": "17:45",
+    "opponent": "El Monte",
+    "location": "El Monte",
+    "notes": "FERE Mini"
+  },
+  {
+    "id": 38,
+    "player": "carmen",
+    "date": "2026-03-04",
+    "time": "17:30",
+    "opponent": "CEIP Pintor Denis Belgrano",
+    "location": "SEK",
+    "notes": "FERE Mini"
+  },
+  {
+    "id": 39,
+    "player": "carmen",
+    "date": "2026-03-11",
+    "time": "17:30",
+    "opponent": "Leon XIII B",
+    "location": "SEK",
+    "notes": "FERE Mini"
+  },
+  {
+    "id": 40,
+    "player": "carmen",
+    "date": "2026-03-18",
+    "time": "17:30",
+    "opponent": "Asuncion B",
+    "location": "SEK",
+    "notes": "FERE Mini"
+  },
+  {
+    "id": 41,
+    "player": "carmen",
+    "date": "2026-04-11",
+    "time": "10:30",
+    "opponent": "Olivos A",
+    "location": "Olivos",
+    "notes": "FERE Mini"
+  },
+  {
+    "id": 42,
+    "player": "carmen",
+    "date": "2026-04-15",
+    "time": "17:30",
+    "opponent": "El Monte",
+    "location": "SEK",
+    "notes": "FERE Mini"
+  },
+  {
+    "id": 43,
+    "player": "carmen",
+    "date": "2026-04-22",
+    "time": "17:20",
+    "opponent": "CEIP Pintor Denis Belgrano",
+    "location": "CEIP Pintor Denis Belgrano",
+    "notes": "FERE Mini"
   }
 ];
 

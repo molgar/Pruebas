@@ -804,11 +804,22 @@
                 return dateMatch && activeFilters.has(game.player);
             });
 
+            // Check for multiple games per player on this day
+            const gamesPerPlayer = {};
+            dayGames.forEach(game => {
+                if (!gamesPerPlayer[game.player]) {
+                    gamesPerPlayer[game.player] = 0;
+                }
+                gamesPerPlayer[game.player]++;
+            });
+
             dayGames.forEach(game => {
                 const gameDiv = document.createElement('div');
                 gameDiv.className = `game ${game.player}`;
+                const multipleGames = gamesPerPlayer[game.player] > 1;
+                const emoji = multipleGames ? '❗ ' : '';
                 gameDiv.innerHTML = `
-                    <div style="font-weight: bold;">${game.time} vs ${game.opponent}</div>
+                    <div style="font-weight: bold;">${emoji}${game.time} vs ${game.opponent}</div>
                     <div style="font-size: 0.9em; opacity: 0.95;">${game.location}</div>
                 `;
                 gameDiv.addEventListener('click', (e) => {
