@@ -862,7 +862,11 @@
         }
 
         function generateICS(gamesToExport, calendarName) {
-            const { createEvents } = window.ics;
+            // Check if ics library is loaded
+            if (!window.ics) {
+                console.error('ics.js library not loaded');
+                return { error: 'Calendar library not loaded' };
+            }
 
             const events = gamesToExport.map(game => {
                 const player = playerInfo[game.player];
@@ -899,10 +903,17 @@
                 };
             });
 
-            return createEvents(events);
+            // Call createEvents from ics library
+            try {
+                return window.ics.createEvents(events);
+            } catch (error) {
+                console.error('Error creating ICS events:', error);
+                return { error: error.message };
+            }
         }
 
         function exportToICS(filterType) {
+            console.log('exportToICS called with filterType:', filterType);
             let gamesToExport;
             let fileName;
 
@@ -921,6 +932,13 @@
                 fileName = 'Basketball-Cadete.ics';
             }
 
+            console.log(`Exporting ${gamesToExport.length} games to ${fileName}`);
+
+            if (gamesToExport.length === 0) {
+                alert('No games to export for this category');
+                return;
+            }
+
             // Sort games by date
             gamesToExport = gamesToExport.sort((a, b) => {
                 const dateA = new Date(a.date + ' ' + a.time);
@@ -929,14 +947,24 @@
             });
 
             // Generate ICS file
+            console.log('Calling generateICS...');
             const result = generateICS(gamesToExport, fileName);
+            console.log('generateICS result:', result);
 
             if (result.error) {
+                console.error('ICS generation error:', result.error);
                 alert('Error generating calendar file: ' + result.error);
                 return;
             }
 
+            if (!result.value) {
+                console.error('No ICS content generated');
+                alert('Error: No calendar content generated');
+                return;
+            }
+
             // Download the file
+            console.log('Creating download...');
             const blob = new Blob([result.value], { type: 'text/calendar;charset=utf-8' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -945,6 +973,7 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(link.href);
+            console.log('Download triggered for', fileName);
         }
 
         function exportToPdf() {
