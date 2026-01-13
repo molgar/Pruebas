@@ -676,7 +676,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ics@3.7.2/dist/bundle.min.js"></script>
     <script src="games-data.js"></script>
     <script>
         let currentDate = new Date();
@@ -861,54 +860,65 @@
             selectedGameId = null;
         }
 
+        // Helper functions for ICS generation
+        function formatICSDate(date, time) {
+            const [year, month, day] = date.split('-');
+            const [hour, minute] = time.split(':');
+            return `${year}${month}${day}T${hour.padStart(2, '0')}${minute.padStart(2, '0')}00`;
+        }
+
+        function addMinutes(date, time, minutes) {
+            const [year, month, day] = date.split('-').map(Number);
+            const [hour, minute] = time.split(':').map(Number);
+            const d = new Date(year, month - 1, day, hour, minute);
+            d.setMinutes(d.getMinutes() + minutes);
+
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const dy = String(d.getDate()).padStart(2, '0');
+            const h = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+
+            return `${y}${m}${dy}T${h}${min}00`;
+        }
+
+        function escapeICS(text) {
+            if (!text) return '';
+            return text.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+        }
+
         function generateICS(gamesToExport, calendarName) {
-            // Check if ics library is loaded
-            if (!window.ics) {
-                console.error('ics.js library not loaded');
-                return { error: 'Calendar library not loaded' };
-            }
-
-            const events = gamesToExport.map(game => {
-                const player = playerInfo[game.player];
-
-                // Parse date and time
-                const [year, month, day] = game.date.split('-').map(Number);
-                const [hour, minute] = game.time.split(':').map(Number);
-
-                // Create start date/time array [year, month, day, hour, minute]
-                const startDateTime = [year, month, day, hour, minute];
-
-                // Calculate end time (90 minutes later)
-                const startDate = new Date(year, month - 1, day, hour, minute);
-                const endDate = new Date(startDate.getTime() + 90 * 60000); // Add 90 minutes
-                const endDateTime = [
-                    endDate.getFullYear(),
-                    endDate.getMonth() + 1,
-                    endDate.getDate(),
-                    endDate.getHours(),
-                    endDate.getMinutes()
-                ];
-
-                return {
-                    start: startDateTime,
-                    end: endDateTime,
-                    title: `${game.time} - ${player.category} vs ${game.opponent}`,
-                    description: `${player.category} game vs ${game.opponent}\n${game.notes || ''}`,
-                    location: game.location,
-                    categories: [player.category],
-                    status: 'CONFIRMED',
-                    busyStatus: 'BUSY',
-                    uid: `game-${game.id}@basketballcalendar.github.io`,
-                    productId: 'Basketball Calendar'
-                };
-            });
-
-            // Call createEvents from ics library
             try {
-                return window.ics.createEvents(events);
+                let ics = 'BEGIN:VCALENDAR\r\n';
+                ics += 'VERSION:2.0\r\n';
+                ics += 'PRODID:-//Basketball Calendar//EN\r\n';
+                ics += `X-WR-CALNAME:${calendarName}\r\n`;
+                ics += 'X-WR-TIMEZONE:Europe/Madrid\r\n';
+                ics += 'CALSCALE:GREGORIAN\r\n';
+                ics += 'METHOD:PUBLISH\r\n';
+
+                gamesToExport.forEach(game => {
+                    const player = playerInfo[game.player];
+                    const startDate = formatICSDate(game.date, game.time);
+                    const endDate = addMinutes(game.date, game.time, 90);
+
+                    ics += 'BEGIN:VEVENT\r\n';
+                    ics += `UID:game-${game.id}@basketballcalendar.github.io\r\n`;
+                    ics += `DTSTART:${startDate}\r\n`;
+                    ics += `DTEND:${endDate}\r\n`;
+                    ics += `SUMMARY:${escapeICS(game.time + ' - ' + player.category + ' vs ' + game.opponent)}\r\n`;
+                    ics += `DESCRIPTION:${escapeICS(player.category + ' game vs ' + game.opponent + '\\n' + (game.notes || ''))}\r\n`;
+                    ics += `LOCATION:${escapeICS(game.location)}\r\n`;
+                    ics += `CATEGORIES:${player.category}\r\n`;
+                    ics += 'STATUS:CONFIRMED\r\n';
+                    ics += 'END:VEVENT\r\n';
+                });
+
+                ics += 'END:VCALENDAR\r\n';
+                return { value: ics, error: null };
             } catch (error) {
-                console.error('Error creating ICS events:', error);
-                return { error: error.message };
+                console.error('Error generating ICS:', error);
+                return { error: error.message, value: null };
             }
         }
 
